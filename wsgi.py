@@ -37,5 +37,4 @@ def zoomphone_registration():
       return Response("Access denied", 401)
 
 if __name__ == '__main__':
-   application.host="0.0.0.0"
    application.run()

@@ -3,7 +3,8 @@ import mod_wsgi.server
 
 mod_wsgi.server.start(
   '--log-to-terminal',
-  '--port', '8080',
+  '--host', '0.0.0.0',
+  '--port', '8081',
   '--trust-proxy-header', 'X-Forwarded-For',
   '--trust-proxy-header', 'X-Forwarded-Port',
   '--trust-proxy-header', 'X-Forwarded-Proto',
