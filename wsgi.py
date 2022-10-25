@@ -8,7 +8,7 @@ def reverseLookup(IP):
 	try:
 		return socket.gethostbyaddr(IP)[0].lower()
 	except Exception:
-		return (None)
+		return IP
 
 @application.route('/hello')
 def hello_world():
