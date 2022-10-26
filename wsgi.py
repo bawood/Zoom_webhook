@@ -5,9 +5,9 @@ from flask import Flask, Response, request
 from flask_mysqldb import MySQL
 
 import socket
-app = Flask(__name__)
+application = Flask(__name__)
 
-app.config.from_prefixed_env()
+application.config.from_prefixed_env()
 
 def reverseLookup(IP):
 	try:
@@ -15,14 +15,14 @@ def reverseLookup(IP):
 	except Exception:
 		return IP
 
-@app.route('/hello')
+@application.route('/hello')
 def hello_world():
    return 'Hello World'
 
-@app.route('/device_registration/', methods = ['POST'])
+@application.route('/device_registration/', methods = ['POST'])
 def zoomphone_registration():
    token = request.headers.get('authorization', type=str)
-   if token == app.config["ZOOM_TOKEN"]:
+   if token == application.config["ZOOM_TOKEN"]:
       print("device registration webhook received from: ", reverseLookup(request.remote_addr))
       if request.is_json:
          if request.json:
@@ -33,4 +33,4 @@ def zoomphone_registration():
       return Response("Access denied", 401)
 
 if __name__ == '__main__':
-   app.run()
+   application.run()
