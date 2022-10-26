@@ -25,8 +25,16 @@ def zoomphone_registration():
    if token == application.config["ZOOM_TOKEN"]:
       print("device registration webhook received from: ", reverseLookup(request.remote_addr))
       if request.is_json:
-         if request.json:
-            print(json.dumps(request.json))
+         data = request.get_json()
+# sample event:
+# {"event": "phone.device_registration",
+#  "payload": {"account_id": "sEz6138KT8uP_oq3ISkc4g", 
+#              "object": {"device_id": "Vu-4sU8qRZuz8HkQuWtwsg",
+#                         "device_name": "73464792 11",
+#                         "mac_address": "48256723455f"}},
+#  "event_ts": 1666801622748}
+         if data:
+            print(data['payload']['object']['device_id'], data['payload']['object']['mac_address'])
       return Response("", 200)
    else:
       print("invalid auth token: ", token, "from host: ", reverseLookup(request.remote_addr))
