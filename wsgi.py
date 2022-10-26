@@ -8,6 +8,7 @@ import socket
 application = Flask(__name__)
 
 application.config.from_prefixed_env()
+mysql = MySQL(application)
 
 def reverseLookup(IP):
 	try:
@@ -28,13 +29,24 @@ def zoomphone_registration():
          data = request.get_json()
 # sample event:
 # {"event": "phone.device_registration",
-#  "payload": {"account_id": "sEz6138KT8uP_oq3ISkc4g", 
-#              "object": {"device_id": "Vu-4sU8qRZuz8HkQuWtwsg",
-#                         "device_name": "73464792 11",
-#                         "mac_address": "48256723455f"}},
+#  "payload": {"account_id": "sghqeuivblevhfvafvbavfn", 
+#              "object": {"device_id": "VWt3quhfvasdna",
+#                         "device_name": "123456779",
+#                         "mac_address": "19878175118f"}},
 #  "event_ts": 1666801622748}
          if data:
-            print(data['payload']['object']['device_id'], data['payload']['object']['mac_address'])
+            device_id = data['payload']['object']['device_id']
+            mac_address = data['payload']['object']['mac_address']
+            print("device_id: ", device_id, " mac_address: ", mac_address)
+            like_phone = 'ph_' + mac_address + '%'
+            try:
+               cur = mysql.connection.cursor()
+               cur.execute("""SELECT * FROM ZoomPhoneNameFloorRoom WHERE PhoneName LIKE %s""", (like_phone,))
+               rv = cur.fetchone()
+               if rv:
+                  print("found result " + rv)
+            except Exception as e:
+               print("SQL Exception occurred: ", e)
       return Response("", 200)
    else:
       print("invalid auth token: ", token, "from host: ", reverseLookup(request.remote_addr))
