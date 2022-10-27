@@ -26,6 +26,10 @@ mod-wsgi==4.9.4
     # via -r requirements.in
 mysqlclient==2.1.1
     # via flask-mysqldb
+python-dateutil==2.8.2
+    # via -r requirements.in
+six==1.16.0
+    # via python-dateutil
 werkzeug==2.2.2
     # via flask
 zipp==3.8.0
