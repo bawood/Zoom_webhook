@@ -39,7 +39,7 @@ def zoomphone_registration():
             device_id = data['payload']['object']['device_id']
             mac_address = data['payload']['object']['mac_address']
             print("got webhook for device_id: ", device_id, " mac_address: ", mac_address)
-            ts = datetime.now(tz=datetime.timezone(name="America/Detroit")).strftime('%Y-%m-%d %H:%M:%S')
+            ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             sql_vals = (device_id, ts ,"ph_" + mac_address + "%")
             #sql = "SELECT * FROM ZoomPhoneNameFloorRoom WHERE PhoneName LIKE %s"
             sql = "UPDATE ZoomPhoneNameFloorRoom SET deviceId = %s, stamp = %s WHERE PhoneName LIKE %s"
