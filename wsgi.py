@@ -49,7 +49,7 @@ def zoomphone_registration():
                print("SQL Exception occurred: ", e)
             if rv:
                for r in rv:
-                  print("found result " + r)
+                  print("found result ", r)
       return Response("", 200)
    else:
       print("invalid auth token: ", token, "from host: ", reverseLookup(request.remote_addr))
