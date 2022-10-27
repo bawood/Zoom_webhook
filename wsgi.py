@@ -1,4 +1,5 @@
 from ast import Str
+from datetime import datetime
 import json
 from telnetlib import IP
 from flask import Flask, Response, request
@@ -37,19 +38,20 @@ def zoomphone_registration():
          if data:
             device_id = data['payload']['object']['device_id']
             mac_address = data['payload']['object']['mac_address']
-            print("device_id: ", device_id, " mac_address: ", mac_address)
-            like_phone = ("ph_" + mac_address + "%",)
-            sql = "SELECT * FROM ZoomPhoneNameFloorRoom WHERE PhoneName LIKE %s"
+            print("got webhook for device_id: ", device_id, " mac_address: ", mac_address)
+            ts = datetime.now(tz=datetime.timezone(name="America/Detroit")).strftime('%Y-%m-%d %H:%M:%S')
+            sql_vals = (device_id, ts ,"ph_" + mac_address + "%")
+            #sql = "SELECT * FROM ZoomPhoneNameFloorRoom WHERE PhoneName LIKE %s"
+            sql = "UPDATE ZoomPhoneNameFloorRoom SET deviceId = %s, stamp = %s WHERE PhoneName LIKE %s"
             try:
-               print("mysql_db: " + application.config["MYSQL_DB"])
+               print("Updating mysql with: ", sql_vals)
                cur = mysql.connection.cursor()
-               cur.execute(sql, like_phone)
-               rv = cur.fetchall()
+               cur.execute(sql, sql_vals)
+               mysql.connection.commit()
+               cur.close()
             except Exception as e:
+               mysql.connection.rollback()
                print("SQL Exception occurred: ", e)
-            if rv:
-               for r in rv:
-                  print("found result ", r)
       return Response("", 200)
    else:
       print("invalid auth token: ", token, "from host: ", reverseLookup(request.remote_addr))
