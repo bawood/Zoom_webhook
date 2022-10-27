@@ -40,12 +40,13 @@ def zoomphone_registration():
             print("device_id: ", device_id, " mac_address: ", mac_address)
             like_phone = 'ph_' + mac_address + '%'
             try:
-               print("mysql: " + application.config["MYSQL_PASSWORD"])
+               print("mysql_db: " + application.config["MYSQL_DB"])
                cur = mysql.connection.cursor()
-               cur.execute("""SELECT * FROM ZoomBuildingPROD.ZoomPhoneNameFloorRoom WHERE PhoneName LIKE %s""", (like_phone,))
-               rv = cur.fetchone()
+               cur.execute("""SELECT * FROM ZoomPhoneNameFloorRoom""")
+               #cur.execute("""SELECT * FROM ZoomPhoneNameFloorRoom WHERE PhoneName LIKE %s""", (like_phone,))
+               rv = cur.fetchall()
                if rv:
-                  print("found result " + rv)
+                  print("found result " + rv[0])
             except Exception as e:
                print("SQL Exception occurred: ", e)
       return Response("", 200)
