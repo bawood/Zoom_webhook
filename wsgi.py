@@ -45,10 +45,11 @@ def zoomphone_registration():
                cur.execute("""SELECT * FROM ZoomPhoneNameFloorRoom""")
                #cur.execute("""SELECT * FROM ZoomPhoneNameFloorRoom WHERE PhoneName LIKE %s""", (like_phone,))
                rv = cur.fetchall()
-               if rv:
-                  print("found result " + rv[0])
             except Exception as e:
                print("SQL Exception occurred: ", e)
+            if rv:
+               for r in rv:
+                  print("found result " + r)
       return Response("", 200)
    else:
       print("invalid auth token: ", token, "from host: ", reverseLookup(request.remote_addr))
