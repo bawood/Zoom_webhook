@@ -41,7 +41,7 @@ def zoomphone_registration():
             like_phone = 'ph_' + mac_address + '%'
             try:
                cur = mysql.connection.cursor()
-               cur.execute("""SELECT * FROM ZoomPhoneNameFloorRoom WHERE PhoneName LIKE %s""", (like_phone,))
+               cur.execute("""SELECT * FROM ZoomBuildingPROD.ZoomPhoneNameFloorRoom WHERE PhoneName LIKE %s""", (like_phone,))
                rv = cur.fetchone()
                if rv:
                   print("found result " + rv)
