@@ -26,9 +26,9 @@ def reverseLookup(IP):
 
 @application.route('/hello')
 def hello_world():
-    send_mail(subject='Ignore: Zoom webhook test message',
-              message='received a get request for /hello url from host {}'.format(reverseLookup(request.remote_addr)),
-              from_address=mail_from, to_address=mail_to)
+#    send_mail(subject='Ignore: Zoom webhook test message',
+#              message='received a get request for /hello url from host {}'.format(reverseLookup(request.remote_addr)),
+#              from_address=mail_from, to_address=mail_to)
     return 'Hello World'
 
 
