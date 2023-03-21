@@ -65,7 +65,7 @@ def zoomphone_registration():
                         result = cur.execute(sql, sql_vals)
                         mysql.connection.commit()
                         cur.close()
-                        if result.rowcount == 0:
+                        if result == 0:
                             msg = 'Manual work is likely required since a webhook was received but no rows in DB were updated for phone with MAC: {}'.format(
                                 mac_address)
                             logging.error(msg)
