@@ -15,6 +15,7 @@ application.config.from_prefixed_env()
 mysql = MySQL(application)
 mail_from = application.config["MAIL_FROM"]
 mail_to = application.config["MAIL_TO"]
+logging.basicConfig(level=logging.DEBUG)
 
 
 def reverseLookup(IP):
@@ -26,6 +27,7 @@ def reverseLookup(IP):
 
 @application.route('/hello')
 def hello_world():
+    logging.debug("/hello request received")
 #    send_mail(subject='Ignore: Zoom webhook test message',
 #              message='received a get request for /hello url from host {}'.format(reverseLookup(request.remote_addr)),
 #              from_address=mail_from, to_address=mail_to)
@@ -36,7 +38,7 @@ def hello_world():
 def zoomphone_registration():
     token = request.headers.get('authorization', type=str)
     if token == application.config["ZOOM_TOKEN"]:
-        logging.info("device registration webhook received from: ",
+        logging.debug("device registration webhook received from: ",
                      reverseLookup(request.remote_addr))
         if request.is_json:
             data = request.get_json()
