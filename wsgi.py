@@ -25,13 +25,50 @@ def reverseLookup(IP):
         return IP
 
 
+def test_mysql_connection():
+    try:
+        conn = mysql.connection()
+        if conn.is_connected():
+            logging.debug("Mysql test connection successful")
+            return True
+        else:
+            logging.error("Mysql test connection failed")
+            return False
+    except:
+        return False
+
+
+def test_mysql_query():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT DATABASE()")
+        result = cursor.fetchall()
+        if result:
+            logging.debug("Mysql test query successful")
+            return True
+        else:
+            logging.error("Mysql test query failed")
+            return False
+    except:
+        return False
+
+
 @application.route('/hello')
 def hello_world():
-    logging.debug("/hello request received")
+    if request.remote_addr.startswith('35.7'):
+        logging.debug("/hello request received")
 #    send_mail(subject='Ignore: Zoom webhook test message',
 #              message='received a get request for /hello url from host {}'.format(reverseLookup(request.remote_addr)),
 #              from_address=mail_from, to_address=mail_to)
     return 'Hello World'
+
+
+@application.route('/health')
+def test_mysql():
+    if test_mysql_connection() and test_mysql_query():
+        return "MySQL connection and query test successful."
+    else:
+        return "MySQL connection or query test failed.", 500
 
 
 @application.route('/device_registration/', methods=['POST'])
