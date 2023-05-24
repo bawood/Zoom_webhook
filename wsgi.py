@@ -27,7 +27,7 @@ def reverseLookup(IP):
 
 def test_mysql_connection():
     try:
-        conn = mysql.connect()
+        conn = mysql.connection
         if conn.is_connected():
             logging.debug("Mysql test connection successful")
             return True
