@@ -34,7 +34,8 @@ def test_mysql_connection():
         else:
             logging.error("Mysql test connection failed")
             return False
-    except:
+    except Exception as e:
+        logging.error("Msql connection test exception %s", e.__cause__)
         return False
 
 
@@ -49,7 +50,8 @@ def test_mysql_query():
         else:
             logging.error("Mysql test query failed")
             return False
-    except:
+    except Exception as e:
+        logging.error("Msql query test exception %s", e.__cause__)
         return False
 
 
