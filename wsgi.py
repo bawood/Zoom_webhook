@@ -15,7 +15,7 @@ application.config.from_prefixed_env()
 mysql = MySQL(application)
 mail_from = application.config["MAIL_FROM"]
 mail_to = application.config["MAIL_TO"]
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 def reverseLookup(IP):
@@ -27,8 +27,8 @@ def reverseLookup(IP):
 
 def test_mysql_connection():
     try:
-        conn = mysql.connection
-        if conn.is_connected():
+        conn = mysql.connection.cursor()
+        if conn:
             logging.debug("Mysql test connection successful")
             return True
         else:
@@ -45,7 +45,7 @@ def test_mysql_query():
         cursor.execute("SELECT DATABASE()")
         result = cursor.fetchall()
         if result:
-            logging.debug("Mysql test query successful")
+            logging.debug("Mysql %s test query successful", result)
             return True
         else:
             logging.error("Mysql test query failed")
@@ -57,8 +57,8 @@ def test_mysql_query():
 
 @application.route('/hello')
 def hello_world():
-    if request.remote_addr.startswith('35.7'):
-        logging.debug("/hello request received")
+    if request.remote_addr.startswith('67.149'):
+        logging.info("hello request from %s", request.remote_addr)
 #    send_mail(subject='Ignore: Zoom webhook test message',
 #              message='received a get request for /hello url from host {}'.format(reverseLookup(request.remote_addr)),
 #              from_address=mail_from, to_address=mail_to)
