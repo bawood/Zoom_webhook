@@ -11,6 +11,7 @@ import logging
 
 
 app = Flask(__name__)
+application = app
 
 load_dotenv(override=True)
 app.config.from_prefixed_env()
