@@ -38,7 +38,7 @@ def test_mysql_connection():
             app.logger.error("Mysql test connection failed")
             return False
     except Exception as e:
-        app.logger.error("Msql connection test exception {}".format(e))
+        app.logger.error("Mysql connection test exception {}".format(e))
         return False
 
 
@@ -54,7 +54,7 @@ def test_mysql_query():
             app.logger.error("Mysql test query failed")
             return False
     except Exception as e:
-        app.logger.error("Msql query test exception %s", e.__cause__)
+        app.logger.error("Mysql query test exception %s", e.__cause__)
         return False
 
 
