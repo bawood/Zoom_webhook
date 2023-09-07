@@ -110,8 +110,8 @@ def zoomphone_registration():
                         result = cur.execute(sql, sql_vals)
                         mysql.connection.commit()
                         if result == 0:
-                            sql = "INSERT INTO ZoomPhoneNameFloorRoom ( deviceId, stamp ) VALUES(%s, %s);"
-                            sql_vals = (device_id, ts.strftime('%Y-%m-%d %H:%M:%S'))
+                            sql = "INSERT INTO ZoomPhoneNameFloorRoom ( PhoneName, deviceId, stamp ) VALUES(%s, %s, %s);"
+                            sql_vals = ("ph_" + mac_address, device_id, ts.strftime('%Y-%m-%d %H:%M:%S'))
                             result = cur.execute(sql, sql_vals)
                             mysql.connection.commit()
                             app.logger.debug("SQL insert result: %s", result)
