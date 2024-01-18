@@ -5,9 +5,11 @@ from flask_mysqldb import MySQL
 from umichemail import send_mail
 from dotenv import load_dotenv
 
+import hmac
 import json
 import socket
 import logging
+import os
 
 
 app = Flask(__name__)
@@ -18,7 +20,8 @@ app.config.from_prefixed_env()
 mysql = MySQL(app)
 mail_from = app.config["MAIL_FROM"]
 mail_to = app.config["MAIL_TO"]
-logging.basicConfig(level=logging.INFO)
+log_level = os.environ.get('LOGLEVEL', 'info').upper()
+logging.basicConfig(level=log_level)
 
 
 def reverseLookup(IP):
@@ -78,6 +81,10 @@ def test_mysql():
 
 @app.route('/device_registration/', methods=['POST'])
 def zoomphone_registration():
+    signature = request.headers.get('x-zm-signature', type=str)
+    if signature:
+        app.logger.debug("request contained signature: %s", signature)
+
     token = request.headers.get('authorization', type=str)
     if token == app.config["ZOOM_TOKEN"]:
         app.logger.debug("device registration webhook received from: %s",
@@ -124,9 +131,9 @@ def zoomphone_registration():
                 except Exception as e:
                     mysql.connection.rollback()
                     cur.close()
-                    send_mail(message=e, subject='SQL Exception occurred',
+                    send_mail(message=str(e), subject='SQL Exception occurred',
                               from_address=mail_from, to_address=mail_to)
-                    app.logger.error("SQL Exception occurred: ", e)
+                    app.logger.error("SQL Exception occurred: ", str(e.with_traceback))
         return Response("", 200)
     else:
         print("invalid auth token: ", token, "from host: ",
