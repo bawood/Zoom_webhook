@@ -12,7 +12,7 @@ flask==2.3.3
     # via
     #   -r requirements.in
     #   flask-mysqldb
-flask-mysqldb==2.0.0
+flask-mysqldb==1.0.1
     # via -r requirements.in
 itsdangerous==2.1.2
     # via flask
