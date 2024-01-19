@@ -35,7 +35,7 @@ def test_mysql_connection():
     try:
         conn = mysql.connection.cursor()
         if conn:
-            app.logger.debug("Mysql test connection successful")
+            #app.logger.debug("Mysql test connection successful")
             return True
         else:
             app.logger.error("Mysql test connection failed")
@@ -51,7 +51,7 @@ def test_mysql_query():
         cursor.execute("SELECT DATABASE()")
         result = cursor.fetchall()
         if result:
-            app.logger.debug("Mysql %s test query successful", result)
+            #app.logger.debug("Mysql %s test query successful", result)
             return True
         else:
             app.logger.error("Mysql test query failed")
@@ -81,9 +81,10 @@ def test_mysql():
 
 @app.route('/device_registration/', methods=['POST'])
 def zoomphone_registration():
+    event_ts = request.headers.get('x-zm-request-timestamp', type=str)
+    if event_ts: app.logger.debug("event timestamp: %s", event_ts)
     signature = request.headers.get('x-zm-signature', type=str)
-    if signature:
-        app.logger.debug("request contained signature: %s", signature)
+    if signature: app.logger.debug("request contained signature: %s", signature)
 
     token = request.headers.get('authorization', type=str)
     if token == app.config["ZOOM_TOKEN"]:
