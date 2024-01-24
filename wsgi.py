@@ -88,8 +88,10 @@ def zoomphone_registration():
     message = 'v0:' + request.headers.get('x-zm-request-timestamp', type=str) + str(request.get_json())
     hmac_msg = hmac.new(secret.encode(), message.encode(), hashlib.sha256 )
     our_sig = 'v0=' + hmac_msg.hexdigest()
+    app.logger.debug("our_sig: %s", our_sig)
 
     zm_signature = request.headers.get('x-zm-signature', type=str)
+    app.logger.debug("x-zm-signature: %s", zm_signature)
     if zm_signature == our_sig:
         app.logger.debug("message hmac signatures match")
 
