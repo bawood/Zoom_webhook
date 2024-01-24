@@ -6,7 +6,7 @@ from umichemail import send_mail
 from dotenv import load_dotenv
 
 import hmac
-import json
+import hashlib
 import socket
 import logging
 import os
@@ -21,6 +21,7 @@ mysql = MySQL(app)
 mail_from = app.config["MAIL_FROM"]
 mail_to = app.config["MAIL_TO"]
 log_level = os.environ.get('LOGLEVEL', 'info').upper()
+secret = os.environ.get('SECRET', 'none')
 logging.basicConfig(level=log_level)
 
 
@@ -81,10 +82,16 @@ def test_mysql():
 
 @app.route('/device_registration/', methods=['POST'])
 def zoomphone_registration():
-    event_ts = request.headers.get('x-zm-request-timestamp', type=str)
-    if event_ts: app.logger.debug("event timestamp: %s", event_ts)
-    signature = request.headers.get('x-zm-signature', type=str)
-    if signature: app.logger.debug("request contained signature: %s", signature)
+    if not request.is_json:
+        return Response("Invalid request", status=400)
+
+    message = 'v0:' + request.headers.get('x-zm-request-timestamp', type=str) + str(request.get_json())
+    hmac_msg = hmac.new(secret.encode(), message.encode(), hashlib.sha256 )
+    our_sig = 'v0=' + hmac_msg.hexdigest()
+
+    zm_signature = request.headers.get('x-zm-signature', type=str)
+    if zm_signature == our_sig:
+        app.logger.debug("message hmac signatures match")
 
     token = request.headers.get('authorization', type=str)
     if token == app.config["ZOOM_TOKEN"]:
