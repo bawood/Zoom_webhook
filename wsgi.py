@@ -85,7 +85,8 @@ def zoomphone_registration():
     if not request.is_json:
         return Response("Invalid request", status=400)
 
-    message = 'v0:' + request.headers.get('x-zm-request-timestamp', type=str) + str(request.get_json())
+    message = str('v0:' + request.headers.get('x-zm-request-timestamp', type=str) + ':' + str(request.get_json()))
+    app.logger.debug("string to use for hmac: %s", message)
     hmac_msg = hmac.new(secret.encode(), message.encode(), hashlib.sha256 )
     our_sig = 'v0=' + hmac_msg.hexdigest()
     app.logger.debug("our_sig: %s", our_sig)
