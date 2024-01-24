@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 import hmac
 import hashlib
+import json
 import socket
 import logging
 import os
@@ -85,7 +86,7 @@ def zoomphone_registration():
     if not request.is_json:
         return Response("Invalid request", status=400)
 
-    message = str('v0:' + request.headers.get('x-zm-request-timestamp', type=str) + ':' + str(request.get_json()))
+    message = 'v0:' + request.headers.get('x-zm-request-timestamp', type=str) + ':' + json.dumps(request.get_json())
     app.logger.debug("string to use for hmac: %s", message)
     hmac_msg = hmac.new(secret.encode(), message.encode(), hashlib.sha256 )
     our_sig = 'v0=' + hmac_msg.hexdigest()
