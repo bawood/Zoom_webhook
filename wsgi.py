@@ -86,9 +86,9 @@ def zoomphone_registration():
         return Response("Invalid request", status=400)
 
     zm_request_timestamp = request.headers.get('x-zm-request-timestamp')
-    message = 'v0:{}:{}'.format(zm_request_timestamp,request.data)
+    message = 'v0:{}:{}'.format(zm_request_timestamp,request.data.decode())
     app.logger.debug("string to use for hmac: %s", message)
-    our_sig = hmac.new(secret.encode("utf-8"), msg=message.encode("utf-8"), digestmod=hashlib.sha256 ).hexdigest()
+    our_sig = 'v0=' + hmac.new(secret.encode("utf-8"), msg=message.encode("utf-8"), digestmod=hashlib.sha256 ).hexdigest()
     app.logger.debug("our_sig: %s", our_sig)
 
     zm_signature = request.headers.get('x-zm-signature', type=str)
@@ -100,7 +100,7 @@ def zoomphone_registration():
     if token == app.config["ZOOM_TOKEN"]:
         app.logger.debug("device registration webhook received from: %s",
                      reverseLookup(request.remote_addr))
-        app.logger.debug("%s", request.data)
+        app.logger.debug("%s", request.data.decode())
         if request.is_json:
             data = request.get_json()
             if data:
