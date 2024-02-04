@@ -86,9 +86,11 @@ def zoomphone_registration():
         return Response("Invalid request", status=400)
 
     zm_request_timestamp = request.headers.get('x-zm-request-timestamp')
-    message = 'v0:{}:{}'.format(zm_request_timestamp,request.data.decode())
+    message = f'v0:{zm_request_timestamp}:{request.data.decode("utf-8")}'
     app.logger.debug("string to use for hmac: %s", message)
-    our_sig = 'v0=' + hmac.new(secret.encode("utf-8"), msg=message.encode("utf-8"), digestmod=hashlib.sha256 ).hexdigest()
+    our_sig = 'v0=' + hmac.new(secret.encode("utf-8"),
+                               message.encode("utf-8"),
+                               hashlib.sha256 ).hexdigest()
     app.logger.debug("our_sig: %s", our_sig)
 
     zm_signature = request.headers.get('x-zm-signature', type=str)
@@ -97,59 +99,59 @@ def zoomphone_registration():
         app.logger.debug("message hmac signatures match")
 
     token = request.headers.get('authorization', type=str)
-    if token == app.config["ZOOM_TOKEN"]:
-        app.logger.debug("device registration webhook received from: %s",
-                     reverseLookup(request.remote_addr))
-        app.logger.debug("%s", request.data.decode())
-        if request.is_json:
-            data = request.get_json()
-            if data:
-                device_id = data['payload']['object']['device_id']
-                mac_address = data['payload']['object']['mac_address']
-                app.logger.info("got webhook for device_id: {} mac_address: {}".format(
-                    device_id, mac_address))
+    #if token == app.config["ZOOM_TOKEN"]:
+    app.logger.debug("device registration webhook received from: %s",
+                    reverseLookup(request.remote_addr))
+    app.logger.debug("%s", request.data.decode())
+    if request.is_json:
+        data = request.get_json()
+        if data:
+            device_id = data['payload']['object']['device_id']
+            mac_address = data['payload']['object']['mac_address']
+            app.logger.info("got webhook for device_id: {} mac_address: {}".format(
+                device_id, mac_address))
 
-                ts = datetime.now(tz=tz.gettz('America/Detroit'))
-                sql_vals = (device_id, ts.strftime(
-                    '%Y-%m-%d %H:%M:%S'), "ph_" + mac_address + "%")
-                sql = "UPDATE ZoomPhoneNameFloorRoom SET deviceId = %s, stamp = %s WHERE PhoneName LIKE %s"
-                app.logger.debug(
-                    'Attempting mysql update with: {}'.format(sql_vals))
-                try:
-                    cur = mysql.connection.cursor()
-                    if not cur:
-                        msg = 'Unable to connect to MySQL DB: {}:{}'.format(
-                            app.config["MYSQL_HOST"], app.config["MYSQL_DB"])
-                        app.logger.error(msg)
-                        send_mail(message=msg, subject='ERROR: Zoom webhook Mysql connection',
-                                  from_address=mail_from, to_address=mail_to)
-                        return Response("Database connection failed", headers='Retry-After: 300', status=503)
-                    else:
+            ts = datetime.now(tz=tz.gettz('America/Detroit'))
+            sql_vals = (device_id, ts.strftime(
+                '%Y-%m-%d %H:%M:%S'), "ph_" + mac_address + "%")
+            sql = "UPDATE ZoomPhoneNameFloorRoom SET deviceId = %s, stamp = %s WHERE PhoneName LIKE %s"
+            app.logger.debug(
+                'Attempting mysql update with: {}'.format(sql_vals))
+            try:
+                cur = mysql.connection.cursor()
+                if not cur:
+                    msg = 'Unable to connect to MySQL DB: {}:{}'.format(
+                        app.config["MYSQL_HOST"], app.config["MYSQL_DB"])
+                    app.logger.error(msg)
+                    send_mail(message=msg, subject='ERROR: Zoom webhook Mysql connection',
+                                from_address=mail_from, to_address=mail_to)
+                    return Response("Database connection failed", headers='Retry-After: 300', status=503)
+                else:
+                    result = cur.execute(sql, sql_vals)
+                    mysql.connection.commit()
+                    if result == 0:
+                        sql = "INSERT INTO ZoomPhoneNameFloorRoom ( PhoneName, deviceId, stamp ) VALUES(%s, %s, %s);"
+                        sql_vals = ("ph_" + mac_address, device_id, ts.strftime('%Y-%m-%d %H:%M:%S'))
                         result = cur.execute(sql, sql_vals)
                         mysql.connection.commit()
-                        if result == 0:
-                            sql = "INSERT INTO ZoomPhoneNameFloorRoom ( PhoneName, deviceId, stamp ) VALUES(%s, %s, %s);"
-                            sql_vals = ("ph_" + mac_address, device_id, ts.strftime('%Y-%m-%d %H:%M:%S'))
-                            result = cur.execute(sql, sql_vals)
-                            mysql.connection.commit()
-                            app.logger.debug("SQL insert result: %s", result)
-                            msg = 'device registration webhook was received but no existing entries in DB matched for phone with MAC: {}'.format(
-                                mac_address)
-                            app.logger.error(msg)
-                            send_mail(message=msg, subject='Notice: Zoom device registration, missing DB entry',
-                                      from_address=mail_from, to_address=mail_to)
-                    cur.close()
-                except Exception as e:
-                    mysql.connection.rollback()
-                    cur.close()
-                    send_mail(message=str(e), subject='SQL Exception occurred',
-                              from_address=mail_from, to_address=mail_to)
-                    app.logger.error("SQL Exception occurred: ", str(e.with_traceback))
-        return Response("", 200)
-    else:
-        print("invalid auth token: ", token, "from host: ",
-              reverseLookup(request.remote_addr))
-        return Response("Access denied", 401)
+                        app.logger.debug("SQL insert result: %s", result)
+                        msg = 'device registration webhook was received but no existing entries in DB matched for phone with MAC: {}'.format(
+                            mac_address)
+                        app.logger.error(msg)
+                        send_mail(message=msg, subject='Notice: Zoom device registration, missing DB entry',
+                                    from_address=mail_from, to_address=mail_to)
+                cur.close()
+            except Exception as e:
+                mysql.connection.rollback()
+                cur.close()
+                send_mail(message=str(e), subject='SQL Exception occurred',
+                            from_address=mail_from, to_address=mail_to)
+                app.logger.error("SQL Exception occurred: ", str(e.with_traceback))
+    return Response("", 200)
+    #else:
+    #    print("invalid auth token: ", token, "from host: ",
+    #          reverseLookup(request.remote_addr))
+    #    return Response("Access denied", 401)
 
 
 if __name__ == '__main__':
