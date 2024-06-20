@@ -53,6 +53,7 @@ def zoomphone_registration():
     else:
         app.logger.debug("device registration webhook received from: %s",
                         reverseLookup(request.remote_addr))
+        app.logger.debug("x-zm-trackingid: %s", request.headers.get('x-zm-trackingid', 'missing', type=str))
         app.logger.debug("%s", request.data.decode())
         if request.is_json:
             data = request.get_json()
