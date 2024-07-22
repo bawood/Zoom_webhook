@@ -93,12 +93,16 @@ def zoomphone_registration():
                             send_mail(message=msg, subject='Notice: Zoom device registration, missing DB entry',
                                         from_address=mail_from, to_address=mail_to)
                     cur.close()
+                except MySQL.IntegrityError as e:
+                    mysql.connection.rollback()
+                    cur.close()
+                    app.logger.error("IntegrityError: %s", e)
                 except Exception as e:
                     mysql.connection.rollback()
                     cur.close()
                     send_mail(message=str(e), subject='SQL Exception occurred',
                                 from_address=mail_from, to_address=mail_to)
-                    app.logger.error("SQL Exception occurred: ", str(e.with_traceback))
+                    app.logger.error("SQL Exception occurred: ", str(e))
         return Response("", 200)
 
 
