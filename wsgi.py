@@ -1,4 +1,6 @@
 from datetime import datetime
+from random import random
+from time import sleep
 from dateutil import tz
 from flask import Flask, Response, request
 from flask_mysqldb import MySQL
@@ -69,6 +71,7 @@ def zoomphone_registration():
                 sql = "UPDATE ZoomPhoneNameFloorRoom SET deviceId = %s, stamp = %s WHERE PhoneName LIKE %s"
                 app.logger.debug(
                     'Attempting mysql update with: {}'.format(sql_vals))
+                sleep(random())
                 try:
                     cur = mysql.connection.cursor()
                     if not cur:
