@@ -57,6 +57,7 @@ def zoomphone_registration():
                         reverseLookup(request.remote_addr))
         app.logger.debug("x-zm-trackingid: %s", request.headers.get('x-zm-trackingid', 'missing', type=str))
         app.logger.debug("%s", request.data.decode())
+        sleep(random())
         if request.is_json:
             data = request.get_json()
             if data:
