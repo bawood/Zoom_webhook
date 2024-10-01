@@ -62,7 +62,7 @@ def zoomphone_registration():
             data = request.get_json()
             if data:
                 device_id = data['payload']['object']['device_id']
-                mac_address = data['payload']['object']['mac_address']
+                mac_address = str(data['payload']['object']['mac_address']).upper()
                 app.logger.info("got webhook for device_id: {} mac_address: {}".format(
                     device_id, mac_address))
 
