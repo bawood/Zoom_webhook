@@ -85,17 +85,24 @@ def zoomphone_registration():
                     else:
                         result = cur.execute(sql, sql_vals)
                         mysql.connection.commit()
+                        # either the UPDATE failed because there was no record or a duplicate webhook had the row locked
                         if result == 0:
-                            sql = "INSERT INTO ZoomPhoneNameFloorRoom ( PhoneName, deviceId, stamp ) VALUES(%s, %s, %s);"
-                            sql_vals = ("ph_" + mac_address, device_id, ts.strftime('%Y-%m-%d %H:%M:%S'))
+                            sql = "SELECT PhoneName FROM ZoomPhoneNameFloorRoom WHERE PhoneName LIKE %s"
+                            sql_vals = ("ph_" + mac_address)
                             result = cur.execute(sql, sql_vals)
-                            mysql.connection.commit()
-                            app.logger.debug("SQL insert result: %s", result)
-                            msg = 'device registration webhook was received but no existing entries in DB matched for phone with MAC: {}'.format(
-                                mac_address)
-                            app.logger.error(msg)
-                            send_mail(message=msg, subject='Notice: Zoom device registration, missing DB entry',
-                                        from_address=mail_from, to_address=mail_to)
+                            # if there was no record, insert one.
+                            if result == 0:
+                                app.logger.debug("No DB entry found for phone with MAC: {}".format(mac_address))
+                                sql = "INSERT INTO ZoomPhoneNameFloorRoom ( PhoneName, deviceId, stamp ) VALUES(%s, %s, %s);"
+                                sql_vals = ("ph_" + mac_address, device_id, ts.strftime('%Y-%m-%d %H:%M:%S'))
+                                result = cur.execute(sql, sql_vals)
+                                mysql.connection.commit()
+                                app.logger.debug("SQL insert result: %s", result)
+                                msg = 'device registration webhook was received but no existing entries in DB matched for phone with MAC: {}'.format(
+                                    mac_address)
+                                app.logger.error(msg)
+                                send_mail(message=msg, subject='Notice: Zoom device registration, missing DB entry',
+                                            from_address=mail_from, to_address=mail_to)
                     cur.close()
                 except MySQL.IntegrityError as e:
                     mysql.connection.rollback()
