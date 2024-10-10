@@ -88,7 +88,7 @@ def zoomphone_registration():
                         # either the UPDATE failed because there was no record or a duplicate webhook had the row locked
                         if result == 0:
                             sql = "SELECT PhoneName FROM ZoomPhoneNameFloorRoom WHERE PhoneName LIKE %s"
-                            sql_vals = ("ph_" + mac_address)
+                            sql_vals = ["ph_" + mac_address + "%"]
                             result = cur.execute(sql, sql_vals)
                             # if there was no record, insert one.
                             if result == 0:
